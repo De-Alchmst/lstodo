@@ -2,11 +2,21 @@
 
 require "json"
 
+###########################
+# PLATFORM SPECIFIC STUFF #
+###########################
+
+# just unix for now
+
+CONFIG_PATH = (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
+
+def is_text_file?(path)
+  `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
+end
+
 ###############
 # LOAD CONFIG #
 ###############
-
-CONFIG_PATH = (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
 
 # generate default one if no found
 unless File.file? CONFIG_PATH
@@ -77,12 +87,15 @@ def search_dir(path)
     else
       name_written = false
 
+      # skip binary files
+      next unless is_text_file? dir
+
       # read file
       f = File.open(dir, "r")
       lines = f.readlines
       f.close
 
-      # skip binary files
+      # skip invalid files
       next unless lines.join("").valid_encoding?
 
       # go through
