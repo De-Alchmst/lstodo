@@ -18,8 +18,8 @@ unless File.file? CONFIG_PATH
     ],
 
     :ignore => {
-      :shell => [],
-      :regex => [],
+      :shell => ["lstodo.rb", "lstodo.json", "[kill.me]? haha / * \\"],
+      :regex => ["node_[a-z]*"],
     }
   })
 
@@ -29,15 +29,34 @@ end
 # load config file
 begin
   config = JSON.load_file CONFIG_PATH
+  catch = config["catch"]
+  # load regex exceptions
+  ignore = config["ignore"]["regex"].map {|rx| Regexp.new "^#{rx}$"}
+  # load shell exceptions and convert to regex
+  ignore += config["ignore"]["shell"].map {|rx|
+    # escape what needs escaping
+    rx.gsub! /([\/\\\[\]\.\^\$\{\}\(\)\+\|])/, "\\\\\\1"
+    # shell wildcards
+    rx.gsub! /\*/, ".*"
+    rx.gsub!  /\?/, "."
+
+    Regexp.new "^#{rx}$"
+  }
+
 rescue
-  abort "Config file \x1b[1m#{CONFIG_PATH}\x1b[0m is not valid JSON." \
+  abort "Config file \x1b[1m#{CONFIG_PATH}\x1b[0m is not valid." \
       + "Please fix it or remove it."
 end
 
 
+################
+# SEARCH FILES #
+################
 
-puts config
+def search_dir(path)
+  Dir.children(path).each {|item|
+    puts item
+  }
+end
 
-puts Dir.foreach(".") {|x| puts x}
-
-Dir.glob("** *").each {|entry| puts entry}
+search_dir Dir.pwd
