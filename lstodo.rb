@@ -14,7 +14,7 @@ unless File.file? CONFIG_PATH
 
   conf.puts JSON.pretty_generate({
     :catch => [
-      ["TODO:", "❕","\x1b[34m"],
+      ["TODO:", "☑️","\x1b[34m"],
       ["NOTE:", "ℹ️","\x1b[36m"],
       ["WARNING:", "⚠️","\x1b[93;1m"],
       ["FIX:", "⛔","\x1b[91;1m"],
