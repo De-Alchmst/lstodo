@@ -1,4 +1,4 @@
-#! /bin/ruby
+#! /usr/bin/ruby
 # test if needs to be installed globaly #
 #
 require "fileutils"

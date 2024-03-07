@@ -109,8 +109,8 @@ if (!File.file? CONFIG_PATH) || reset
     ],
 
     :ignore => {
-      :shell => ["lstodo.rb", "lstodo.json", "node_modules", "bin"],
-      :regex => ["^\\..+"],
+      :shell => ["lstodo.rb", "lstodo.json", "node_modules", "bin", "lib"],
+      :regex => [],
     }
   })
 
