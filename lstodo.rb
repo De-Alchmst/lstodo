@@ -69,7 +69,9 @@ end
 # SEARCH FILES #
 ################
 
-def search_dir(path)
+$output = ""
+
+def search_dir(path, link_count)
   Dir.children(path).each { |item|
 
     dir = File.join(path, item)
@@ -80,7 +82,11 @@ def search_dir(path)
     # search inner file
     if File.directory? dir
       if File.executable? dir
-        search_dir dir  
+        # prevent infinite loops
+        link_count -= 1 if File.symlink? dir
+        next if link_count == 0;
+
+        search_dir(dir, link_count)
       end
 
     # search contents
@@ -106,22 +112,22 @@ def search_dir(path)
             # file header
             if !name_written
               name_written = true
-              puts "\n" + dir
+              $output += "\n" + dir + "\n"
             end
 
             # line #
             line_num = (i+1).to_s
 
             # styling
-            print label[2] 
+            $output += label[2] 
             # symbol
-            print label[1] + " "*2
+            $output += label[1] + " "*2
             # line number
-            print line_num + " "*(5-line_num.length)
+            $output += line_num + " "*(5-line_num.length)
             # line content
-            print lines[i].strip
+            $output += lines[i].strip
             # remove styling 
-            puts "\x1b[0m"
+            $output += "\x1b[0m\n"
           end
         end
       }
@@ -129,4 +135,6 @@ def search_dir(path)
   }
 end
 
-search_dir "."
+search_dir ".", 4
+
+puts $output.strip
