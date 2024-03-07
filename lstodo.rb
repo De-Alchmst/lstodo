@@ -10,8 +10,6 @@ require "json"
 
 CONFIG_PATH = (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
 
-HOME = ENV["HOME"]
-
 # put ./ before path when needed
 def make_dir(starting_file)
   unless starting_file =~ /^(\/|\.\/|\.\.\/)/ # / ./ ../
@@ -173,7 +171,7 @@ def handle_file(path)
         # file header
         if !name_written
           name_written = true
-          $output += "\n" + path.sub(HOME, "~") + "\n"
+          $output += "\n" + path.sub(Dir.home, "~") + "\n"
         end
 
         # line #
