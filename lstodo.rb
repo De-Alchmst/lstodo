@@ -14,12 +14,80 @@ def is_text_file?(path)
   `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
 end
 
+####################
+# MANAGE ARGUMENTS #
+####################
+
+def help
+  abort %{
+lstodo: lists any flags in all files in set directory recursively
+
+USAGE: 
+  lstodo [flags] [directory]
+
+FLAGS:
+  -h, --help      prints this help page
+  -r, --reset     resets config file
+  -l, --links     sets max number of link jumps
+  }.strip
+end
+
+starting_file = ""
+link_count = 4
+reset = false
+
+i = 0
+while i < ARGV.length
+  # flags #
+  if ARGV[i][0] == "-" && ARGV[i].length > 1 && ARGV[i][1] != "-" 
+    ARGV[i].chars.drop(1).each { |flag|
+      case flag
+      when "h"
+        help
+      when "r"
+        reset = true
+      when "l"
+        i += 1
+        link_count = Integer(ARGV[i]) rescue abort("no number given to -l")
+      else
+        puts "unknown flag: #{flag}"
+        help
+      end
+    }
+
+  elsif ARGV[i].length > 1 && ARGV[i][1] == "-"
+    case ARGV[i]
+    when "--help"
+      help
+    when "--reset"
+      reset = true
+    when "--links"
+      i += 1
+      link_count = Integer(ARGV[i]) rescue abort("no number given to --links")
+    else
+      puts "unknown flag: #{ARGV[i]}"
+      help
+    end
+
+  # starting file #
+  else
+    if starting_file == ""
+      starting_file = ARGV[i]
+    else
+      puts "wrong argument: #{ARGV[i]}"
+      help
+    end
+  end
+
+  i += 1
+end
+
 ###############
 # LOAD CONFIG #
 ###############
 
 # generate default one if no found
-unless File.file? CONFIG_PATH
+if (!File.file? CONFIG_PATH) || reset
   conf = File.open(CONFIG_PATH, "w")
 
   conf.puts JSON.pretty_generate({
@@ -135,6 +203,6 @@ def search_dir(path, link_count)
   }
 end
 
-search_dir ".", 4
+search_dir ".", link_count
 
 puts $output.strip
