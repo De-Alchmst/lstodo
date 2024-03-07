@@ -10,6 +10,17 @@ require "json"
 
 CONFIG_PATH = (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
 
+HOME = ENV["HOME"]
+
+# put ./ before path when needed
+def make_dir(starting_file)
+  unless starting_file =~ /^(\/|\.\/|\.\.\/)/ # / ./ ../
+      starting_file = "./" + starting_file
+  end
+
+  starting_file
+end
+
 def is_text_file?(path)
   `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
 end
@@ -139,6 +150,51 @@ end
 
 $output = ""
 
+# search file for labels #
+def handle_file(path)
+  name_written = false
+
+  # skip binary files
+  return unless is_text_file? path
+
+  # read file
+  f = File.open(path, "r")
+  lines = f.readlines
+  f.close
+
+  # skip invalid files
+  return unless lines.join("").valid_encoding?
+
+  # go through
+  lines.length.times { |i|
+    for label in $catch do
+      if lines[i].match label[0]
+
+        # file header
+        if !name_written
+          name_written = true
+          $output += "\n" + path.sub(HOME, "~") + "\n"
+        end
+
+        # line #
+        line_num = (i+1).to_s
+
+        # styling
+        $output += label[2] 
+        # symbol
+        $output += label[1] + " "*2
+        # line number
+        $output += line_num + " "*(5-line_num.length)
+        # line content
+        $output += lines[i].strip
+        # remove styling 
+        $output += "\x1b[0m\n"
+      end
+    end
+  }
+end
+
+# search directory for files #
 def search_dir(path, link_count)
   Dir.children(path).each { |item|
 
@@ -159,50 +215,27 @@ def search_dir(path, link_count)
 
     # search contents
     else
-      name_written = false
-
-      # skip binary files
-      next unless is_text_file? dir
-
-      # read file
-      f = File.open(dir, "r")
-      lines = f.readlines
-      f.close
-
-      # skip invalid files
-      next unless lines.join("").valid_encoding?
-
-      # go through
-      lines.length.times { |i|
-        for label in $catch do
-          if lines[i].match label[0]
-
-            # file header
-            if !name_written
-              name_written = true
-              $output += "\n" + dir + "\n"
-            end
-
-            # line #
-            line_num = (i+1).to_s
-
-            # styling
-            $output += label[2] 
-            # symbol
-            $output += label[1] + " "*2
-            # line number
-            $output += line_num + " "*(5-line_num.length)
-            # line content
-            $output += lines[i].strip
-            # remove styling 
-            $output += "\x1b[0m\n"
-          end
-        end
-      }
+      handle_file dir
     end
   }
 end
 
-search_dir ".", link_count
+# given file handeling #
 
-puts $output.strip
+# add ./ where needed
+starting_file = make_dir starting_file
+
+# give to appropriet function
+if File.exist? starting_file
+  # file given
+  if File.file? starting_file
+    handle_file starting_file
+  # directory filed
+  else
+    search_dir starting_file, link_count
+  end
+else
+  abort "file not find: \x1b[1m#{starting_file}\x1b[0m"
+end
+
+puts $output.strip unless $output == ""
