@@ -24,3 +24,18 @@ Upon usage, lstodo generates `lstodo.json` in `XDG-CONFIG-HOME` or `$HOME/.confi
 	* list: [name, icon, formatting via escape sequences]
 + ignored file names defined by shell names
 + ignored file names defined by regex
+
+Default labels
++ TODO:
++ NOTE:
++ WARNING:
++ FIX:
++ HACK:
+
+Default ignored file names
++ `lstodo.rb`
++ `lstodo.json`
++ `node_modules`
++ `bin`
++ `lib`
++ everything starting with `.`
