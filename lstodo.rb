@@ -6,21 +6,39 @@ require "json"
 # PLATFORM SPECIFIC STUFF #
 ###########################
 
-# just unix for now
+IS_WINDOWS = (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
 
-CONFIG_PATH = (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
+CONFIG_PATH = IS_WINDOWS \
+  ? (ENV["LocalAppData"]) + '\lstodo\lstodo.json'
+  : (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
 
 # put ./ before path when needed
 def make_dir(starting_file)
-  unless starting_file =~ /^(\/|\.\/|\.\.\/)/ # / ./ ../
+  if IS_WINDOWS
+    unless starting_file =~ /^\w:\\/ # disk letter
+      starting_file = ".\\" + starting_file
+	end
+  else
+    unless starting_file =~ /^(\/|\.\/|\.\.\/)/ # / ./ ../
       starting_file = "./" + starting_file
+    end
   end
 
   starting_file
 end
 
 def is_text_file?(path)
-  `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
+  if IS_WINDOWS
+    # needs to read first few parts of file and test if is utf-8 - encodable
+	# not perfect, but will do
+	f = File.open(path, "r")
+	data = f.read(1024)
+	f.close
+	
+	data.force_encoding("UTF-8").valid_encoding?
+  else
+    `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
+  end
 end
 
 ####################
@@ -95,7 +113,12 @@ end
 # LOAD CONFIG #
 ###############
 
-# generate default one if no found
+# generate default one if no found #
+unless File.exist? File.dirname(CONFIG_PATH)
+Dir.mkdir(File.dirname(CONFIG_PATH)) rescue \
+  abort("you don't have permission to create \x1b[1m#{File.dirname(CONFIG_PATH)}\x1b[0m")
+end
+
 if (!File.file? CONFIG_PATH) || reset
   conf = File.open(CONFIG_PATH, "w")
 
@@ -110,14 +133,14 @@ if (!File.file? CONFIG_PATH) || reset
 
     :ignore => {
       :shell => ["lstodo.rb", "lstodo.json", "node_modules", "bin", "lib"],
-      :regex => ["^\..+"],
+      :regex => ["^\\..+"],
     }
   })
 
   conf.close
 end
 
-# load config file
+# load config file #
 begin
   config = JSON.load_file CONFIG_PATH
   $catch = config["catch"]
@@ -197,7 +220,7 @@ def search_dir(path, link_count)
   Dir.children(path).each { |item|
 
     dir = File.join(path, item)
-
+	
     # ignore
     next if item.match($ignore) || !File.readable?(dir)
 
