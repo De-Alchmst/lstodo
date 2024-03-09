@@ -9,7 +9,7 @@ require "json"
 IS_WINDOWS = (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
 
 CONFIG_PATH = IS_WINDOWS \
-  ? (ENV["LocalAppData"]) + '\lstodo\lstodo.json'
+  ? (ENV["LocalAppData"]) + '\Programs\lstodo\lstodo.json'
   : (ENV["XDG_CONFIG_HOME"] || (ENV["HOME"] + "/.config")) + "/lstodo.json"
 
 # put ./ before path when needed
@@ -31,11 +31,14 @@ def is_text_file?(path)
   if IS_WINDOWS
     # needs to read first few parts of file and test if is utf-8 - encodable
 	# not perfect, but will do
-	f = File.open(path, "r")
-	data = f.read(1024)
+	f = File.open(path, "r") \
+	  rescue(return false)
+	data = f.read(1024) \
+	  rescue(return false)
 	f.close
 	
-	data.force_encoding("UTF-8").valid_encoding?
+	data.force_encoding("UTF-8").valid_encoding? \
+	  rescue false
   else
     `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
   end

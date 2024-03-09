@@ -1,6 +1,6 @@
 # lstodo
 
-Lstodo is simple command line application to list user defined `TODO:` labels in your text files. Currently working only on unix-like platforms.
+Lstodo is simple command line application to list user defined `TODO:`-like labels in your text files.
 
 ![](demonstration.png)
 
