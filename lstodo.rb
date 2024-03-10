@@ -131,6 +131,7 @@ if (!File.file? CONFIG_PATH) || reset
       ["NOTE:", "ℹ️","\x1b[36m"],
       ["WARNING:", "⚠️","\x1b[93;1m"],
       ["FIX:", "⛔","\x1b[91;1m"],
+      ["FIXME:", "⛔","\x1b[91;1m"],
       ["HACK:", "☣️","\x1b[32;3m"],
     ],
 

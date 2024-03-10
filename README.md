@@ -19,7 +19,7 @@ ruby install.rb --global-install
 ```
 
 ## configuration
-Upon usage, lstodo generates `lstodo.json` in `XDG-CONFIG-HOME` or `$HOME/.config` if not defined. Config can be regenerated with `lstodo -r`.  Following stuff can be configured:
+Upon usage, lstodo generates `lstodo.json` in `XDG-CONFIG-HOME` or `$HOME/.config` on unix-like platforms or `%LocalAppData%\lstodo` on windows. Config can be regenerated with `lstodo -r`.  Following stuff can be configured:
 + labels
 	* list: [name, icon, formatting via escape sequences]
 + ignored file names defined by shell names
@@ -30,6 +30,7 @@ Default labels
 + NOTE:
 + WARNING:
 + FIX:
++ FIXME:
 + HACK:
 
 Default ignored file names
