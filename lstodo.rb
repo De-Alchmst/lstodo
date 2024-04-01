@@ -30,15 +30,15 @@ end
 def is_text_file?(path)
   if IS_WINDOWS
     # needs to read first few parts of file and test if is utf-8 - encodable
-	# not perfect, but will do
-	f = File.open(path, "r") \
-	  rescue(return false)
-	data = f.read(1024) \
-	  rescue(return false)
-	f.close
-	
-	data.force_encoding("UTF-8").valid_encoding? \
-	  rescue false
+    # not perfect, but will do
+    f = File.open(path, "r") \
+      rescue(return false)
+    data = f.read(1024) \
+      rescue(return false)
+    f.close
+
+    data.force_encoding("UTF-8").valid_encoding? \
+      rescue false
   else
     `file -b --mime-encoding "#{path}"` =~ /utf-|ascii/
   end

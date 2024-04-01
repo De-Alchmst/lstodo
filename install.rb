@@ -10,10 +10,10 @@ destination = IS_WINDOWS ? "#{ENV["LocalAppData"]}\\Programs\\lstodo\\lstodo.rb"
 if ARGV.length > 0
   if ARGV[0] == "--global-install"
     if IS_WINDOWS
-	destination = 'C:\Program Files\lstodo\lstodo.rb'
+      destination = 'C:\Program Files\lstodo\lstodo.rb'
     else
       destination = "/bin/lstodo-t"
-	end
+    end
   else
     abort "unknown flag: \x1b[1m#{ARGV[0]}\x1b[0m"
   end
