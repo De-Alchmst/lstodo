@@ -5,14 +5,14 @@ require "fileutils"
 
 IS_WINDOWS = (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
 
-destination = IS_WINDOWS ? "#{ENV["LocalAppData"]}\\Programs\\lstodo\\lstodo.rb" : "#{ENV["HOME"]}/bin/lstodo"
+destination = IS_WINDOWS ? "#{ENV["LocalAppData"]}\\Programs\\lstodo\\lstodo.rb" : "#{ENV["HOME"]}/.local/bin/lstodo"
 
 if ARGV.length > 0
   if ARGV[0] == "--global-install"
     if IS_WINDOWS
       destination = 'C:\Program Files\lstodo\lstodo.rb'
     else
-      destination = "/bin/lstodo-t"
+      destination = "/usr/local/bin/lstodo"
     end
   else
     abort "unknown flag: \x1b[1m#{ARGV[0]}\x1b[0m"
